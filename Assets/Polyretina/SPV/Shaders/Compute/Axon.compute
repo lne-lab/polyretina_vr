@@ -1,0 +1,182 @@
+﻿
+#pragma kernel CSMain
+
+/*
+	Input
+*/
+
+float2 _headset_diameter;
+float2 _headset_resolution;
+
+/*
+	Output
+*/
+
+RWTexture2D<float4> _result;
+
+/*
+	Functions
+*/
+
+float2 pixel_to_retina(uint px, uint py)
+{
+	float rx = (float(px) / _headset_resolution.x - 0.5) * _headset_diameter.x;
+	float ry = (float(py) / _headset_resolution.y - 0.5) * _headset_diameter.y;
+
+	return float2(rx, ry);
+}
+
+float retina_to_angle(float r_um)
+{
+	float r_mm = abs(r_um) * 0.001;
+	float r_deg =	3.556 * r_mm + 
+					0.05993 * pow(r_mm, 2.0) - 
+					0.007358 * pow(r_mm, 3.0) + 
+					0.0003027 * pow(r_mm, 4.0);
+
+	return sign(r_um) * r_deg;
+}
+	
+float2 retina_to_angle(float2 angle)
+{
+	return float2(retina_to_angle(angle.x), retina_to_angle(angle.y));
+}
+
+float2 pixel_to_angle(uint px, uint py)
+{
+	float2 retina = pixel_to_retina(px, py);
+	float2 angle = retina_to_angle(retina);
+
+	return angle;
+}
+
+float2 angle_to_polar(float2 angle)
+{
+	float mx = angle.x - 15.0;
+	float my = angle.y;
+
+	if (angle.x > 0.0)
+	{
+		my = angle.y - 2.0 * pow(angle.x / 15.0, 2.0);
+	}
+
+	float px = sqrt(pow(mx, 2.0) + pow(my, 2.0));
+	float py = degrees(atan2(my, mx));
+
+	return float2(px, py);
+}
+
+float2 pixel_to_polar(uint px, uint py)
+{
+	float2 angle = pixel_to_angle(px, py);
+	float2 polar = angle_to_polar(angle);
+
+	return polar;
+}
+
+float overflow(float value, float min, float max)
+{
+	float size = max - min;
+	if (value < min)
+	{
+		value += size;
+	}
+	else if (value > max)
+	{
+		value -= size;
+	}
+
+	return value;
+}
+
+float calculate_b(float phi0)
+{
+	float lnb;
+
+	if (phi0 >= 0.0 && phi0 <= 180.0)
+	{
+		lnb = -1.9 + 3.9 * tanh(-(phi0 - 121.0) / 14.0);
+	}
+	else
+	{
+		lnb = 0.5 + 1.5 * tanh(-(-phi0 - 90.0) / 25.0);
+	}
+
+	float b = exp(lnb);
+
+	if (phi0 < 0.0 || phi0 > 180.0)
+	{
+		b = -b;
+	}
+
+	return b;
+}
+
+float calculate_c(float phi0)
+{
+	float c;
+
+	if (phi0 >= 0.0 && phi0 <= 180.0)
+	{
+		c = 1.9 + 1.4 * tanh((phi0 - 121.0) / 14.0);
+	}
+	else
+	{
+		c = 1.0 + 0.5 * tanh((-phi0 - 90.0) / 25.0);
+	}
+
+	return c;
+}
+
+float calculate_phi(float phi0, float rho)
+{
+	rho = max(rho, 4.0);
+	return phi0 + calculate_b(phi0) * pow(rho - 4.0, calculate_c(phi0));
+}
+
+float closest_phi0(float2 polar, float from, float to, uint resolution)
+{
+	float increment = (to - from) / float(resolution);
+
+	float closest_phi0 = 0xFFFFFFFF;
+	float closest_phi = 0xFFFFFFFF;
+
+	for (uint i = 0; i < resolution; i++)
+	{
+		float est_phi0 = from + increment * i;
+		est_phi0 = overflow(est_phi0, -180.0, 180.0);
+
+		float est_phi = calculate_phi(est_phi0, polar.x);
+		if (abs(polar.y - est_phi) < abs(polar.y - closest_phi))
+		{
+			closest_phi = est_phi;
+			closest_phi0 = est_phi0;
+		}
+	}
+
+	return closest_phi0;
+}
+
+float4 calculate_pixel(uint x, uint y)
+{
+	float2 polar = pixel_to_polar(x, y);
+	float best_phi0 = closest_phi0(polar, -180.0, 180.0, 360u);
+
+	for (int i = 0; i < 5; i++)
+	{
+		float deviation = 0.55 / pow(10.0, i);
+		best_phi0 = closest_phi0(polar, best_phi0 - deviation, best_phi0 + deviation, 11u);
+	}
+
+	return float4(best_phi0, polar.x, calculate_b(best_phi0), calculate_c(best_phi0));
+}
+
+/*
+	Kernel
+*/
+
+[numthreads(8, 8, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	_result[id.xy] = calculate_pixel(id.x, id.y);
+}

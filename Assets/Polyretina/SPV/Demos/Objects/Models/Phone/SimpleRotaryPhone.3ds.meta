@@ -1,0 +1,167 @@
+fileFormatVersion: 2
+guid: 35e43826be9286a42abde23585754eca
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Feet
+    100002: Foot
+    100004: Foot1
+    100006: Foot2
+    100008: Foot_
+    100010: Foot_1
+    100012: Foot_2
+    100014: Foot_Origi
+    100016: Phone1
+    100018: PhoneBase
+    100020: PhoneHands
+    100022: Rotary
+    100024: Rotary_Dia
+    100026: Rotary_Joi
+    100028: //RootNode
+    400000: Feet
+    400002: Foot
+    400004: Foot1
+    400006: Foot2
+    400008: Foot_
+    400010: Foot_1
+    400012: Foot_2
+    400014: Foot_Origi
+    400016: Phone1
+    400018: PhoneBase
+    400020: PhoneHands
+    400022: Rotary
+    400024: Rotary_Dia
+    400026: Rotary_Joi
+    400028: //RootNode
+    2100000: Mat
+    2100002: Plastic-Glossy-
+    2100004: Plastic-Glossy
+    2100006: Glossy-Black
+    2300000: Feet
+    2300002: Foot
+    2300004: Foot1
+    2300006: Foot2
+    2300008: Foot_
+    2300010: Foot_1
+    2300012: Foot_2
+    2300014: Foot_Origi
+    2300016: Phone1
+    2300018: PhoneBase
+    2300020: PhoneHands
+    2300022: Rotary
+    2300024: Rotary_Dia
+    2300026: Rotary_Joi
+    2300028: //RootNode
+    3300000: Feet
+    3300002: Foot
+    3300004: Foot1
+    3300006: Foot2
+    3300008: Foot_
+    3300010: Foot_1
+    3300012: Foot_2
+    3300014: Foot_Origi
+    3300016: Phone1
+    3300018: PhoneBase
+    3300020: PhoneHands
+    3300022: Rotary
+    3300024: Rotary_Dia
+    3300026: Rotary_Joi
+    3300028: //RootNode
+    4300000: Phone
+    4300002: Feet
+    4300004: Foot2
+    4300006: Foot_1
+    4300008: Foot
+    4300010: Foot_Origi
+    4300012: Foot1
+    4300014: Foot_
+    4300016: Foot_2
+    4300018: Rotary
+    4300020: Rotary_Joi
+    4300022: Rotary_Dia
+    4300024: Phone1
+    4300026: PhoneHands
+    4300028: PhoneBase
+    2186277476908879412: ImportLogs
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

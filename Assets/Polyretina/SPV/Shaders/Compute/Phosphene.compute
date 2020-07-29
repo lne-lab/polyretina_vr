@@ -1,0 +1,74 @@
+﻿
+#pragma kernel CSMain
+
+/*
+	Input
+*/
+
+float2 _headset_diameter;
+float2 _headset_resolution;
+
+StructuredBuffer<float2> _electrodes;
+
+/*
+	Output
+*/
+
+RWTexture2D<float4> _result;
+
+/*
+	Functions
+*/
+
+float2 pixel_to_retina(uint px, uint py)
+{
+	float rx = (float(px) / _headset_resolution.x - 0.5) * _headset_diameter.x;
+	float ry = (float(py) / _headset_resolution.y - 0.5) * _headset_diameter.y;
+
+	return float2(rx, ry);
+}
+
+uint num_electrodes()
+{
+	uint length = 0;
+	uint stride = 0;
+	_electrodes.GetDimensions(length, stride);
+
+	return length;
+}
+
+float2 find_closest_electrode(float2 retinal_pos)
+{
+	float2 closest_electrode = _electrodes[0u];
+	float closest_dist = distance(retinal_pos, closest_electrode);
+
+	uint n = num_electrodes();
+	for (uint i = 0u; i < n; i++)
+	{
+		float current_dist = distance(retinal_pos, _electrodes[i]);
+		if (current_dist < closest_dist)
+		{
+			closest_electrode = _electrodes[i];
+			closest_dist = current_dist;
+		}
+	}
+
+	return closest_electrode;
+}
+
+float4 calculate_pixel(uint x, uint y)
+{
+	float2 retinal_pos = pixel_to_retina(x, y);
+	float2 electrode = find_closest_electrode(retinal_pos);
+	return float4(electrode, 0.0, 0.0);
+}
+
+/*
+	Kernel
+*/
+
+[numthreads(8, 8, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	_result[id.xy] = calculate_pixel(id.x, id.y);
+}
