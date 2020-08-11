@@ -44,6 +44,9 @@ namespace LNE.ProstheticVision.Fading
 		[SerializeField]
 		private TextMesh valueText;
 
+		[SerializeField]
+		private bool valueFollowLine;
+
 		[Space]
 
 		[SerializeField]
@@ -115,8 +118,11 @@ namespace LNE.ProstheticVision.Fading
 			{
 				valueText.text = AuxMath.Formalise(Value, minValue, maxValue).ToString("N3");
 
-				var height = Value * 1.95f - .9f;
-				valueText.transform.SetY(lineRenderer.transform.position.y + height);
+				if (valueFollowLine)
+				{
+					var height = Value * 1.95f - .9f;
+					valueText.transform.SetY(lineRenderer.transform.position.y + height);
+				}
 			}
 
 			updateCount++;

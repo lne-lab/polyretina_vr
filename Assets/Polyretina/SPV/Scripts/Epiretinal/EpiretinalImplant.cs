@@ -71,7 +71,7 @@ namespace LNE.ProstheticVision
 		private ElectrodeLayout lastLayout;
 
 		/*
-		 * Private properties
+		 * Public properties
 		 */
 
 		// Pulse cycle is: 10ms on, 40ms off
@@ -82,7 +82,7 @@ namespace LNE.ProstheticVision
 		public DoubleBufferedRenderTexture FadeRT => fadeRT;
 
 		/*
-		 * Inherited methods
+		 * Public methods
 		 */
 
 		public override void Start()
@@ -252,6 +252,34 @@ namespace LNE.ProstheticVision
 				Graphics.Blit(source, destination);
 			}
 		}
+
+		public void UpdateFadingParameters(float fastDecayRate, float slowDecayRate, float decayExponent, float recoveryTime, float recoveryExponent)
+		{
+			// decay parameters
+			phosMRT.SetFloat("_fast_decay_rate", fastDecayRate);
+			phosMRT.SetFloat("_slow_decay_rate", slowDecayRate);
+			phosMRT.SetFloat("_decay_exponent", decayExponent);
+
+			// recovery parameters
+			phosMRT.SetFloat("_recovery_time", recoveryTime);
+			phosMRT.SetFloat("_recovery_exponent", recoveryExponent);
+		}
+
+		public void UpdateFadingParameters_v2(float t1, float t2, float threshold, float recoveryTime, float recoveryExponent)
+		{
+			// decay parameters
+			phosMRT.SetFloat("_t1", t1);
+			phosMRT.SetFloat("_t2", t2);
+			phosMRT.SetFloat("_threshold", threshold);
+
+			// recovery parameters
+			phosMRT.SetFloat("_recovery_time", recoveryTime);
+			phosMRT.SetFloat("_recovery_exponent", recoveryExponent);
+		}
+
+		/*
+		 * Private methods
+		 */
 
 		private void UpdateKeyword(string keyword, bool condition)
 		{

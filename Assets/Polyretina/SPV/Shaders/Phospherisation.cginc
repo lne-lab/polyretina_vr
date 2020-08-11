@@ -71,10 +71,13 @@
 		// electrode luminance (out param)
 		luminance = Luminance(input);														// base luminancy
 		luminance = round(luminance * (_luminance_levels - 1)) / (_luminance_levels - 1);	// set to an interval of levels
-		luminance *= is_electrode * _brightness * intensity * _pulse;						// adjust luminance
+		luminance *= is_electrode * _brightness * intensity;								// adjust luminance
 
 		// electrode is on (out param)
 		electrode_is_on = luminance > .001;
+
+		// apply on/off frequency pulse
+		luminance *= _pulse;
 	}
 
 	float calc_luminance(float2 eye_uv)
@@ -121,19 +124,13 @@
 	
 	float2 _eye_gaze_delta;
 
-	/*
-	 * Constants
-	 */
+	float _t1;
+	float _t2;
+	float _threshold;
 
-	static const float _fast_decay_frames = 3;
-	static const float _fast_decay_rate = .2;
-	static const float _slow_decay_rate = .002;
-	static const float _decay_exponent = 1;
+	float _recovery_time;
+	float _recovery_exponent;
 
-	static const float _recovery_time = 30;
-	static const float _recovery_exponent = 1.6;
-	static const float _recovery_threshold = .95;
-	
 	/*
 	 * Functions
 	 */
@@ -143,114 +140,49 @@
 		return unity_DeltaTime.r;
 	}
 
-	float decay(float brightness, float rate)
+	float update_fade(bool electrode_is_on, float brightness)
 	{
-		float inv_brightness = 1 - brightness;
-		float exponential_rate = 1 + inv_brightness * _decay_exponent;
-
-		return brightness - rate * exponential_rate;
-	}
-
-	float pythagoras(float r, float x)
-	{
-		return sqrt((r * r) - (x * x));
-	}
-
-	float recover(float off_time, float starting_brightness)
-	{
-		starting_brightness = pow(starting_brightness, 1 / _recovery_exponent);
-		
-		// calculate starting x (time) value
-		float start_y = starting_brightness * _recovery_time;
-		float start_x = pythagoras(_recovery_time, start_y);
-		
-		// calculate y (brightness) value
-		float inv_time = start_x - off_time;
-		if (inv_time > 0)
-		{
-			float y = pythagoras(_recovery_time, inv_time) / _recovery_time;
-			y = pow(y, _recovery_exponent);
-
-			return y;
-		}
-		else
-		{
-			return 1;
-		}
-	}
-
-	float4 update_fade_v4(bool electrode_is_on, float4 fade_data)
-	{
-		float brightness = fade_data.r;
-		float on_frames = fade_data.g;
-		float off_time = fade_data.b;
-		float starting_brightness = fade_data.a;
-
 		if (electrode_is_on)
 		{
-			if (on_frames < _fast_decay_frames)
+			if (brightness > _threshold)
 			{
-				brightness = decay(brightness, _fast_decay_rate);
-			}
-			else if (brightness > _recovery_threshold)
-			{
-				on_frames = .5;
-				brightness = decay(brightness, _fast_decay_rate);
+				// if electrode is on and we are above the t threshold, decay quickly (t1)
+				float t1_old = _t1 * (brightness - _threshold) / (1 - _threshold);
+				float t1_new = t1_old - delta_time();
+
+				brightness = t1_new * (1 - _threshold) / _t1 + _threshold;
 			}
 			else
 			{
-				brightness = decay(brightness, _slow_decay_rate);
+				// otherwise, decay slowly (t2)
+				float t2_old = _t2 * brightness / _threshold;
+				float t2_new = t2_old - delta_time();
+
+				brightness = t2_new * _threshold / _t2;
 			}
 
-			starting_brightness = clamp(brightness, .05, 1);
-
-			on_frames += 1;
-			off_time = 0;
+			// stop brightness going into negative values
+			brightness = max(brightness, 0);
 		}
 		else
 		{
-			brightness = recover(off_time, starting_brightness);
-			off_time += delta_time();
-		}
+			// if electrode is off, recover exponentially
+			float start_y = brightness;
+			float start_x = (1 - pow(1 - start_y, 1 / _recovery_exponent)) * _recovery_time;
 
-		brightness = clamp(brightness, .05, 1);
+			float x = start_x + delta_time();
 
-		return float4(brightness, on_frames, off_time, starting_brightness);
-	}
-
-	float4 update_fade_v5(bool electrode_is_on, float4 fade_data)
-	{
-		float brightness = fade_data.r;
-		float on_frames = fade_data.g;
-		float off_time = fade_data.b;
-		float starting_brightness = fade_data.a;
-
-		if (electrode_is_on)
-		{
-			if (brightness > .35)
+			if (x <= _recovery_time)
 			{
-				brightness = decay(brightness, _fast_decay_rate);
-				brightness = clamp(brightness, .3, 1);
+				brightness = 1 - pow(1 - (x / _recovery_time), _recovery_exponent);
 			}
 			else
 			{
-				brightness = decay(brightness, _slow_decay_rate);
+				brightness = 1;
 			}
-
-			starting_brightness = clamp(brightness, .05, 1);
-
-			on_frames += 1;
-			off_time = 0;
-		}
-		else
-		{
-			brightness = recover(off_time, starting_brightness);
-			off_time += delta_time();
 		}
 
-		brightness = clamp(brightness, .05, 1);
-
-		return float4(brightness, on_frames, off_time, starting_brightness);
+		return brightness;
 	}
 
 	/*
@@ -265,6 +197,8 @@
 
 	MRT phos_w_fade_mrt(float2 uv : TEXCOORD0)
 	{
+		// correct eye-gaze
+
 #ifdef GRAB_PASS
 		_eye_gaze.y = -_eye_gaze.y;
 		_eye_gaze_delta.y = -_eye_gaze_delta.y;
@@ -272,26 +206,34 @@
 
 		float2 eye_uv = uv - _eye_gaze;
 		
+		// retrieve needed variables
 		bool is_electrode;
 		float2 electrode_pos;
 		bool electrode_is_on;
 		float luminance;
 		calc_luminance(eye_uv, is_electrode, electrode_pos, electrode_is_on, luminance);
 
+		// retrieve last frames fade data
 		float4 fade_data = tex2D(_fade_tex, electrode_pos + _eye_gaze_delta);
 
+		// apply fade if requested
 #ifdef USE_FADING
 		luminance *= fade_data.r;				
 #endif
 
+		// output multiple render target
 		MRT mrt;
+
+		// output phosphene image
 		mrt.phos = float4(luminance.xxx, 1.0);
 
+		// with optional outline
 #ifdef OUTLINE
 		mrt.phos += outline_polyretina(eye_uv, _headset_diameter, _polyretina_radius);
 #endif
 
-		mrt.fade = update_fade_v5(electrode_is_on, fade_data) * is_electrode;
+		// ouput single-channel updated fade data
+		mrt.fade = update_fade(electrode_is_on, fade_data.r) * is_electrode;
 
 		return mrt;
 	}

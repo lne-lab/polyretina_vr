@@ -29,6 +29,17 @@ Shader "LNE/Saccade Simulation"
 			uint _frequency;
 			uint _frame_count;
 
+			static const float2 hexagon[] = 
+			{ 
+				float2(0, 0),
+				float2(+1, 0),
+				float2(-1, 0),
+				float2(+0.5, +0.86603),
+				float2(-0.5, +0.86603),
+				float2(+0.5, -0.86603),
+				float2(-0.5, -0.86603)
+			};
+
 			float2 calc_offset(float2 uv, float2 direction)
 			{
 				float2 r_uv = pixel_to_retina(uv, _headset_diameter);
@@ -38,34 +49,7 @@ Shader "LNE/Saccade Simulation"
 			float4 frag(float2 uv : TEXCOORD0) : SV_TARGET
 			{
 				uint frame = _frame_count / (_pulse_frequency * _frequency);
-				float x = _electrode_pitch / 2;
-				float y = x * 1.73205;
-
-				if (frame % _type == 1)
-				{
-					uv = calc_offset(uv, float2(+_electrode_pitch, 0));
-				}
-				else if (frame % _type == 2)
-				{
-					uv = calc_offset(uv, float2(-_electrode_pitch, 0));
-				}
-				else if (frame % _type == 3)
-				{
-					uv = calc_offset(uv, float2(+x, +y));
-				}
-				else if (frame % _type == 4)
-				{
-					uv = calc_offset(uv, float2(-x, +y));
-				}
-				else if (frame % _type == 5)
-				{
-					uv = calc_offset(uv, float2(+x, -y));
-				}
-				else if (frame % _type == 6)
-				{
-					uv = calc_offset(uv, float2(-x, -y));
-				}
-
+				uv = calc_offset(uv, float2(_electrode_pitch, _electrode_pitch) * hexagon[frame % _type]);
 				return tex2D(_MainTex, uv);
 			}
 			ENDCG
