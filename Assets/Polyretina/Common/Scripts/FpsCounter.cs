@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace LNE.Testing
+namespace LNE.Analysis
 {
 	using UI.Attributes;
 	using static ArrayExts.ArrayExtensions;

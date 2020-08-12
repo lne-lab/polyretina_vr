@@ -81,6 +81,8 @@ crashlytics-build.properties
 /[Aa]ssets/UnityCam.meta
 
 # Future studies
+/[Aa]ssets/Polyretina/SPV/Testing/
+/[Aa]ssets/Polyretina/SPV/Testing.meta
 /[Aa]ssets/Polyretina/Studies/Augmented/
 /[Aa]ssets/Polyretina/Studies/Augmented.meta
 
