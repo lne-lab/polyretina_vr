@@ -39,10 +39,10 @@ namespace LNE.UI
 				helpMessage = "Enable FOVE eye tracking. Will produce errors if the FOVE Unity Package has not been imported.";
 			}
 
-			Settings.ViveProEyeSupport = UnityGUI.Toggle("VIVE Pro Eye", Settings.ViveProEyeSupport);
+			Settings.ViveProEyeSupport = UnityGUI.Toggle("Vive Pro Eye", Settings.ViveProEyeSupport);
 			if (UnityGUI.OnMouseHoverPrevious())
 			{
-				helpMessage = "Enable VIVE Pro Eye eye tracking. Will produce errors if the SRanipal Unity Package has not been imported.";
+				helpMessage = "Enable Vive Pro Eye eye tracking. Will produce errors if the SRanipal Unity Package has not been imported.";
 			}
 
 			UnityGUI.Space();
