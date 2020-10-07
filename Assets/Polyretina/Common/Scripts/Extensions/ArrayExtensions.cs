@@ -437,7 +437,7 @@ namespace LNE.ArrayExts
 
 			return result.ToArray();
 		}
-
+		 
 		/// <summary>
 		/// Shift all elements
 		/// </summary>
@@ -450,17 +450,18 @@ namespace LNE.ArrayExts
 				shifts += n;
 			}
 
-			var cached = that[shifts % n];
+			var cached = that[((n-1) + shifts) % n];
 
-			for (int i = 0; i < n; i++)
+			for (int i = n-1; i >= 0; i--)
 			{
 				var from = i;
 				var to = (i + shifts) % n;
 
-				that[to] = that[from];
+				var tmp = that[from];
+				that[to] = tmp;
 			}
 
-			that[(n - 1 + shifts) % n] = cached;
+			that[shifts % n] = cached;
 
 			return that;
 		}

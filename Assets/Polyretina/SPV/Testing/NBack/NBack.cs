@@ -111,12 +111,6 @@ namespace LNE.Testing
 				{
 					trainingAnswers.Shift(1);
 					trainingAnswers[0] = success;
-
-					var outputStr = "";
-					foreach (var ans in trainingAnswers)
-						outputStr += ans.ToString() + " ";
-
-					Debug.Log("training answers: " + outputStr);
 				}
 
 				hasAnswered = true;
