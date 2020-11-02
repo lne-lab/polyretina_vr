@@ -44,7 +44,6 @@ namespace LNE.PostProcessing
 			second.anisoLevel = 0;
 			second.enableRandomWrite = true;
 			second.Create();
-
 		}
 
 		public DoubleBufferedRenderTexture(RenderTexture first, RenderTexture second)

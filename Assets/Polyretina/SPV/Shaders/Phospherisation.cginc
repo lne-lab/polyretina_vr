@@ -31,6 +31,7 @@ float _intensity_variance;
 float _brightness;
 int _pulse;
 int _luminance_levels;
+float _luminance_boost;
 
 /*
  * Functions
@@ -68,8 +69,9 @@ void calc_luminance(float2 eye_uv, out bool is_electrode, out float2 electrode_p
 		step(distance_to_fovea, _polyretina_radius - _electrode_radius) *	// inside the polyretina
 		(1 - broken);														// electrode is not broken
 
-// electrode luminance (out param)
+	// electrode luminance (out param)
 	luminance = Luminance(input);														// base luminancy
+	luminance = clamp(luminance + _luminance_boost, 0, 1);								// boost activation chance and clamp
 	luminance = round(luminance * (_luminance_levels - 1)) / (_luminance_levels - 1);	// set to an interval of levels
 	luminance *= is_electrode * _brightness * intensity;								// adjust luminance
 

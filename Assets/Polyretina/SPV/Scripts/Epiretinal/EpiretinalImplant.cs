@@ -29,6 +29,9 @@ namespace LNE.ProstheticVision
 		public int luminanceLevels = 2;
 
 		[Range(0, 1)]
+		public float luminanceBoost = 0;
+
+		[Range(0, 1)]
 		public float brightness = 1;
 
 		[Header("Variance")]
@@ -218,7 +221,11 @@ namespace LNE.ProstheticVision
 			// fading (can safely be uploaded every frame because it is just a RenderTexture pointer)
 			phosMRT.SetTexture(SP.fadeTexture, fadeRT.Back);
 
-			phosMRT.SetVector("_eye_gaze_delta", EyeGaze.GetDelta(eyeGazeSource, headset));
+			// eye gaze delta
+			phosMRT.SetVector(SP.eyeGazeDelta, EyeGaze.GetDelta(eyeGazeSource, headset));
+
+			// luminance boost
+			phosMRT.SetFloat(SP.luminanceBoost, luminanceBoost);
 		}
 
 		public override void GetDimensions(out int width, out int height)

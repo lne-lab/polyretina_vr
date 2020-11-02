@@ -9,6 +9,9 @@ namespace LNE.Analysis
 	using UI.Attributes;
 	using static ArrayExts.ArrayExtensions;
 
+	/// <summary>
+	/// Displays an FPS counter on the screen saves the data to a file
+	/// </summary>
 	public class FpsCounter : MonoBehaviour
 	{
 		/*
@@ -17,13 +20,16 @@ namespace LNE.Analysis
 
 		[Space]
 
-		[SerializeField]
+		[SerializeField, CustomLabel(label = "Refresh Rate (Hz)")]
 		private float _refreshRate = 1;
 
 		[SerializeField, Path]
-		private string _savePath;
+		private string _path;
 
-		[Header("Text")]
+		[SerializeField]
+		private string _filename;
+
+		[Header("Display")]
 
 		[SerializeField]
 		private Vector2 _textPosition = new Vector2(.7f, .95f);
@@ -58,7 +64,7 @@ namespace LNE.Analysis
 		{
 			frameCount++;
 
-			if (Time.time - refreshTime >= _refreshRate)
+			if (Time.time - refreshTime >= (1 / _refreshRate))
 			{
 				text = $"{frameCount}Hz ({(int)(_refreshRate / frameCount * 1000)}ms)";
 
@@ -80,10 +86,10 @@ namespace LNE.Analysis
 
 		void OnApplicationQuit()
 		{
-			if (Directory.Exists(_savePath))
+			if (Directory.Exists(_path))
 			{
 				var csv = ToCSV(true, ";", frameCounts.ToArray());
-				File.WriteAllText(_savePath + "fps.csv", csv);
+				File.WriteAllText(_path + _filename + ".csv", csv);
 			}
 		}
 	}

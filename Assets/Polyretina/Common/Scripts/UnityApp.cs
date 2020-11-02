@@ -133,6 +133,9 @@ namespace LNE
 			return str;
 		}
 
+		/// <summary>
+		/// Returns string as Unity would display it in the editor
+		/// </summary>
 		public static string ToDisplayFormat(object obj)
 		{
 			return ToDisplayFormat(obj.ToString());
@@ -151,9 +154,9 @@ namespace LNE
 		}
 
 		/// <summary>
-		/// Find all objects of type in the scene (included inactive/disabled)
+		/// Find all objects of type in the scene (including inactive/disabled)
 		/// </summary>
-		public static T[] FindObjectsOfTypeAll<T>()
+		public static T[] FindAllObjectsOfType<T>()
 		{
 			List<T> results = new List<T>();
 			for (int i = 0; i < SceneManager.sceneCount; i++)

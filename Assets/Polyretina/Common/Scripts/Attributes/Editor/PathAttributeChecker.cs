@@ -17,7 +17,7 @@ namespace LNE.UI.Attributes
 		[RuntimeInitializeOnLoadMethod]
 		static void CheckPaths()
 		{
-			var monoBehaviours = UnityApp.FindObjectsOfTypeAll<MonoBehaviour>();
+			var monoBehaviours = UnityApp.FindAllObjectsOfType<MonoBehaviour>();
 			foreach (var behaviour in monoBehaviours)
 			{
 				if (behaviour == null)

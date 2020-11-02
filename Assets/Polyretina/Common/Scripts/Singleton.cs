@@ -24,7 +24,7 @@ namespace LNE
 
 		private static T GetInstance()
 		{
-			var objects = UnityApp.FindObjectsOfTypeAll<T>();
+			var objects = UnityApp.FindAllObjectsOfType<T>();
 			if (objects.Length == 0)
 			{
 				Debug.LogWarning($"Object of type ({nameof(T)}) not found.");

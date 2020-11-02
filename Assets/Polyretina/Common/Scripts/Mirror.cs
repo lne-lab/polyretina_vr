@@ -31,7 +31,7 @@ namespace LNE.Reflection
 				}
 				else
 				{
-					Debug.LogWarning($"{obj.ToString()}.{methodName} with appropriate parameters not found.");
+					Debug.LogWarning($"{obj}.{methodName} with appropriate parameters not found.");
 				}
 			}
 
@@ -52,7 +52,7 @@ namespace LNE.Reflection
 			}
 			else
 			{
-				Debug.LogWarning($"{obj.ToString()}.{propertyName} property of type {argument.FieldType} not found.");
+				Debug.LogWarning($"{obj}.{propertyName} property of type {argument.FieldType} not found.");
 			}
 		}
 

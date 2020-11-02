@@ -30,6 +30,8 @@ namespace LNE.ProstheticVision
 							edgeSensitivity		= Shader.PropertyToID("_blur_tap"),
 							luminanceLevels		= Shader.PropertyToID("_luminance_levels"),
 							edgeThreshold		= Shader.PropertyToID("_threshold"),
-							fadeTexture			= Shader.PropertyToID("_fade_tex");
+							fadeTexture			= Shader.PropertyToID("_fade_tex"),
+							eyeGazeDelta		= Shader.PropertyToID("_eye_gaze_delta"),
+							luminanceBoost		= Shader.PropertyToID("_luminance_boost");
 	}
 }

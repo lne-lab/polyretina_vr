@@ -124,6 +124,17 @@ namespace LNE.ArrayExts
 			return retval;
 		}
 
+		public static T[] Resize<T>(this T[] that, int length)
+		{
+			if (that == null)
+			{
+				that = new T[0];
+			}
+
+			Array.Resize(ref that, length);
+			return that;
+		}
+
 		/*
 		 * For Each
 		 */
@@ -165,6 +176,35 @@ namespace LNE.ArrayExts
 		public static T2[] Convert<T1, T2>(this T1[] that, Func<T1, T2> func)
 		{
 			return that.Convert((i, t1) => func(t1));
+		}
+
+		/// <summary>
+		/// Converge into single value
+		/// </summary>
+		public static T Converge<T>(this T[] that, Func<int, T, T, T> func)
+		{
+			if (that.Length == 0)
+				return default;
+
+			if (that.Length == 1)
+				return that[0];
+
+			var value = func(0, that[0], that[1]);
+
+			for (int i = 2; i < that.Length; i++)
+			{
+				value = func(i-1, value, that[i]);
+			}
+
+			return value;
+		}
+
+		/// <summary>
+		/// Converge into single value
+		/// </summary>
+		public static T Converge<T>(this T[] that, Func<T, T, T> func)
+		{
+			return that.Converge((i, t1, t2) => func(t1, t2));
 		}
 
 		/// <summary>

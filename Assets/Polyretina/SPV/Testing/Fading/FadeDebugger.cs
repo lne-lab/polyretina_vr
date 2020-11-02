@@ -75,6 +75,9 @@ public class FadeDebugger : MonoBehaviour
 		{
 			yield return new WaitForEndOfFrame();
 
+			if (graph == null)
+				continue;
+
 			var activeRT = RenderTexture.active;
 			RenderTexture.active = Implant.FadeRT.Back;
 

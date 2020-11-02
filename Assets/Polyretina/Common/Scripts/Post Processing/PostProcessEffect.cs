@@ -82,15 +82,6 @@ namespace LNE.PostProcessing
 		 * Public methods
 		 */
 
-		public static PostProcessEffect AddPass(GameObject obj, Shader shader, bool enabled)
-		{
-			var pass = obj.AddComponent<PostProcessEffect>();
-			pass.Shader = shader;
-			pass.enabled = enabled;
-
-			return pass;
-		}
-
 		public void SetFloat(int propertyId, float value)
 		{
 			Material.SetFloat(propertyId, value);

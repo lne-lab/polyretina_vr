@@ -15,13 +15,18 @@ public class RotationRecorder : MonoBehaviour
 
 	public Transform target;
 
-	private FadingStudy _study;
+	private FadingStudy2 _study;
 	private List<FrameData_Rotation> _frames;
+
+	private CSV _csv;
 
 	void Awake()
 	{
-		_study = FindObjectOfType<FadingStudy>();
+		_study = FindObjectOfType<FadingStudy2>();
 		_frames = new List<FrameData_Rotation>();
+
+		_csv = new CSV();
+		_csv.AppendRow("participant", "trial", "time", "px", "py", "pz", "rx", "ry", "rz", "rw");
 	}
 
 	void FixedUpdate()
@@ -42,26 +47,43 @@ public class RotationRecorder : MonoBehaviour
 			rz = target.rotation.z,
 			rw = target.rotation.w
 		});
+
+		_csv.AppendRow(
+			participant,
+			_study.trialId,
+			Time.time,
+			target.position.x,
+			target.position.y,
+			target.position.z,
+			target.rotation.x,
+			target.rotation.y,
+			target.rotation.z,
+			target.rotation.w
+		);
 	}
 
 	void OnApplicationQuit()
 	{
-		var fileId = DateTime.Now.Ticks;
-		SaveAsJson(fileId);
-		SaveAsCsv(fileId);
+		//SaveAsJson(fileId);
+		SaveAsCsv();
 	}
 
-	private void SaveAsJson(long id)
+	public void Save(int trial)
 	{
-		var data = new TestData_Rotation { frames = _frames.ToArray() };
-		var json = JsonUtility.ToJson(data, true);
-
-		File.WriteAllText(
-			path + $"Fading_Rotation_{participant}_json_{id}.json", json
-		);
+		_csv.SaveWStream(path + $"Fad_Cnd_Rot_{trial}_{participant}.csv");
 	}
 
-	private void SaveAsCsv(long id)
+	//private void SaveAsJson(long id)
+	//{
+	//	var data = new TestData_Rotation { frames = _frames.ToArray() };
+	//	var json = JsonUtility.ToJson(data, true);
+
+	//	File.WriteAllText(
+	//		path + $"Fading_Rotation_{participant}_json_{id}.json", json
+	//	);
+	//}
+
+	private void SaveAsCsv()
 	{
 		var csv = new CSV();
 		csv.AppendRow("participant", "trial", "time", "px", "py", "pz", "rx", "ry", "rz", "rw");
@@ -82,7 +104,7 @@ public class RotationRecorder : MonoBehaviour
 			);
 		}
 
-		csv.Save(path + $"Fading_Rotation_{participant}_csv_{id}.csv");
+		csv.SaveWStream(path + $"Fad_Cnd_Rot_All_{participant}.csv");
 	}
 }
 

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace LNE
 {
 	/// <summary>
-	/// Displays the webcam on the target rendered object or image
+	/// Displays a chosen webcam on the target image or renderer
 	/// </summary>
 	public class Webcam : MonoBehaviour
 	{

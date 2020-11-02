@@ -12,10 +12,13 @@ namespace LNE
 		 */
 
 		[SerializeField]
-		private string streamName;
+		private string _streamName = "";
 
 		[SerializeField]
-		private float sampleRate;
+		private float _sampleRate = 0;
+
+		[SerializeField]
+		private bool _onStart = false;
 
 		/*
 		 * Private fields
@@ -71,13 +74,40 @@ namespace LNE
 
 		protected virtual void Start()
 		{
-			sampleRate = Mathf.Min(sampleRate, 1 / Time.fixedDeltaTime);
+			if (_onStart == false)
+				return;
+
+			Init(_streamName, _sampleRate);
+		}
+
+		protected virtual void FixedUpdate()
+		{
+			if (_sampleRate == 0)
+				return;
+
+			var updateCount = Mathf.RoundToInt(Time.fixedTime / Time.fixedDeltaTime);
+			var updatesPerFrame = Mathf.RoundToInt(1 / (_sampleRate * Time.fixedDeltaTime));
+			
+			if (updateCount % updatesPerFrame == 0)
+			{
+				PushSample();
+			}
+		}
+
+		/*
+		 * Public methods
+		 */
+
+		public void Init(string streamName, float sampleRate)
+		{
+			_streamName = streamName;
+			_sampleRate = Mathf.Min(sampleRate, 1 / Time.fixedDeltaTime);
 
 			info = new liblsl.StreamInfo(
-				streamName,
+				_streamName,
 				StreamType,
 				NumChannels,
-				sampleRate,
+				_sampleRate,
 				ChannelFormat,
 				OutletName
 			);
@@ -89,22 +119,7 @@ namespace LNE
 			data = new T[NumChannels];
 		}
 
-		protected virtual void FixedUpdate()
-		{
-			var updateCount = Mathf.RoundToInt(Time.fixedTime / Time.fixedDeltaTime);
-			var updatesPerFrame = Mathf.RoundToInt(1 / (sampleRate * Time.fixedDeltaTime));
-			
-			if (updateCount % updatesPerFrame == 0)
-			{
-				PushSample();
-			}
-		}
-
-		/*
-		 * Private methods
-		 */
-
-		private void PushSample()
+		public void PushSample()
 		{
 			UpdateData(data);
 

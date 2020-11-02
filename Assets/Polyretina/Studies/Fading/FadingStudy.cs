@@ -11,7 +11,7 @@ using LNE.UI.Attributes;
 using static LNE.ArrayExts.ArrayExtensions;
 
 [Flags]
-public enum Strategy { None = 1, Saccade = 2, Random = 4, Interrupt = 8 }
+public enum Strategy { None = 1, Saccade = 2, Random = 4, Interrupt = 8, EyeTracking = 16, NoFading = 32 }
 
 public class FadingStudy : MonoBehaviour
 {
@@ -40,6 +40,8 @@ public class FadingStudy : MonoBehaviour
 	private bool _trialStarted;
 	private Strategy[] _strategies;
 
+	private CSV _csv;
+
 	public int trialId => _trialStarted ? _trialId : -1;
 
 	void Awake()
@@ -58,30 +60,36 @@ public class FadingStudy : MonoBehaviour
 			Strategy.Saccade | Strategy.Random,
 			Strategy.Saccade | Strategy.Interrupt,
 			Strategy.Random | Strategy.Interrupt,
-			Strategy.Random | Strategy.Random | Strategy.Interrupt
+			Strategy.Saccade | Strategy.Random | Strategy.Interrupt,
+			Strategy.None | Strategy.EyeTracking,
+			Strategy.None | Strategy.NoFading
 		};
 
 		_strategies = CreateArray(strategyCombos, trialsPerCondition, (s) => s).Randomise(_seed);
+
+		_csv = new CSV();
+		_csv.AppendRow("participant", "trial", "strategy", "start time", "end time", "success");
+
+		webcam.enabled = false;
 	}
 
 	void OnApplicationQuit()
 	{
-		var fileId = DateTime.Now.Ticks;
-		SaveAsJson(fileId);
-		SaveAsCsv(fileId);
+		//SaveAsJson(fileId);
+		SaveAsCsv();
 	}
 
-	private void SaveAsJson(long id)
-	{
-		var data = new TestData_Conditions { trials = _trials.ToArray() };
-		var json = JsonUtility.ToJson(data, true);
+	//private void SaveAsJson(long id)
+	//{
+	//	var data = new TestData_Conditions { trials = _trials.ToArray() };
+	//	var json = JsonUtility.ToJson(data, true);
 
-		File.WriteAllText(
-			path + $"Fading_Conditions_{participant}_json_{id}.json", json
-		);
-	}
+	//	File.WriteAllText(
+	//		path + $"Fading_Conditions_{participant}_json_{id}.json", json
+	//	);
+	//}
 
-	private void SaveAsCsv(long id)
+	private void SaveAsCsv()
 	{
 		var csv = new CSV();
 		csv.AppendRow("participant", "trial", "strategy", "start time", "end time", "success");
@@ -98,7 +106,7 @@ public class FadingStudy : MonoBehaviour
 			);
 		}
 
-		csv.Save(path + $"Fading_Conditions_{participant}_csv_{id}.csv");
+		csv.SaveWStream(path + $"Fad_Cnd_Res_All_{participant}.csv");
 	}
 
 	public void StartTrial()
@@ -120,8 +128,10 @@ public class FadingStudy : MonoBehaviour
 
 		// misc stuff
 		SetStrategyParameters();
-		webcam.enabled = false;
+		webcam.enabled = true;
 		speakers.PlayOneShot(startSound);
+
+		Debug.Log($"Trial {_trialId} starting. Strategy: {_trial.strategy}");
 	}
 
 	public void EndTrial(bool success)
@@ -138,11 +148,24 @@ public class FadingStudy : MonoBehaviour
 		_trials.Add(_trial);
 
 		// misc stuff
-		speakers.PlayOneShot(success ? successSound : failedSound);
-		webcam.enabled = true;
+		//speakers.PlayOneShot(success ? successSound : failedSound);
+		speakers.PlayOneShot(startSound);
+		webcam.enabled = false;
+
+		// save data
+		_csv.AppendRow(_trial.participant, _trial.trialId, _trial.strategy, _trial.startTime, _trial.endtime, _trial.success);
+		_csv.SaveWStream(path + $"Fad_Cnd_Res_{_trialId}_{participant}.csv");
+		FindObjectOfType<RotationRecorder>().Save(_trialId);
+
+		Debug.Log($"Trial {_trialId} ending. It was a " + (success ? "success" : "failure") + ".");
 
 		// incr
 		_trialId++;
+
+		if (_trialId >= _strategies.Length)
+		{
+			Application.Quit();
+		}
 	}
 
 	private void SetStrategyParameters()
@@ -193,6 +216,15 @@ public class FadingStudy : MonoBehaviour
 				fadeParams.parameters._5HzT2 = 0.165f;
 				break;
 		}
+
+		// eye tracking
+		var implant = Prosthesis.Instance.Implant as EpiretinalImplant;
+		implant.eyeGazeSource = _trial.strategy.HasFlag(Strategy.EyeTracking) ?
+								EyeGaze.Source.EyeTracking :
+								EyeGaze.Source.None;
+
+		// no fading
+		implant.useFading = !_trial.strategy.HasFlag(Strategy.NoFading);
 	}
 }
 
@@ -214,4 +246,5 @@ public class TrialData_Conditions
 	public float endtime;
 
 	public bool success;
+	public int numCorrect;
 }

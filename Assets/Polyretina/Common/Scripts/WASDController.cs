@@ -7,12 +7,24 @@ namespace LNE
 	/// </summary>
 	public class WASDController : MonoBehaviour
 	{
+		/*
+		 * Editor fields
+		 */
+
 		[Range(0, 1)]
 		public float	lookSpeed = .5f,
 						moveSpeed = .5f;
 
+		/*
+		 * Private fields
+		 */
+
 		private bool paused;
 		private bool canFly;
+
+		/*
+		 * Unity callbacks
+		 */
 
 		void Awake()
 		{
