@@ -62,6 +62,19 @@ namespace LNE.Testing
 			}
 		}
 
+		private Color objectColour
+		{
+			get
+			{
+				return default;
+			}
+
+			set
+			{
+				currObject.GetComponent<SymbolColour>().colour = value;
+			}
+		}
+
 		/*
 		 * Public methods
 		 */
@@ -92,12 +105,16 @@ namespace LNE.Testing
 
 		public void ShowObject()
 		{
+			objectColour = Color.white;
 			currObject.SetActive(true);
 		}
 
 		public void HideObject()
 		{
 			currObject.SetActive(false);
+
+			// set answer to incorrect if no answer
+			OnAnswer(currObject != nthObject);
 		}
 
 		public void OnAnswer(bool answer)
@@ -106,6 +123,8 @@ namespace LNE.Testing
 			{
 				var success = currObject == nthObject == answer;
 				csv.AppendRow(trialId, Time.time - trialStartTime, success);
+
+				objectColour = success ? Color.green : Color.red;
 
 				if (_trainingBlock)
 				{
@@ -122,8 +141,6 @@ namespace LNE.Testing
 
 		public void EndTrial()
 		{
-			OnAnswer(false); // set answer to false if no answer
-
 			if (_n > 0)
 			{
 				prevObject.Shift(1);
