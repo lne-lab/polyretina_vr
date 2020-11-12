@@ -78,16 +78,18 @@ crashlytics-build.properties
 *.md.meta
 
 # Auxiliary folders
+/[Aa]ssets/Other Stuff/
+/[Aa]ssets/Other Stuff.meta
 /[Aa]ssets/LSL4Unity/
 /[Aa]ssets/LSL4Unity.meta
 /[Aa]ssets/UnityCam/
 /[Aa]ssets/UnityCam.meta
 
 # Future studies
-#/[Aa]ssets/Polyretina/SPV/Testing/
-#/[Aa]ssets/Polyretina/SPV/Testing.meta
-/[Aa]ssets/Polyretina/Studies/Augmented/
-/[Aa]ssets/Polyretina/Studies/Augmented.meta
+/[Aa]ssets/Polyretina/Studies/Fading/
+/[Aa]ssets/Polyretina/Studies/Fading.meta
+/[Aa]ssets/Polyretina/Studies/Fading 2/
+/[Aa]ssets/Polyretina/Studies/Fading 2.meta
 
 # Copyrighted assets
 /[Aa]ssets/FoveUnityPlugin/
