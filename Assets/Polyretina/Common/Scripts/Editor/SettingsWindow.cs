@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 namespace LNE.UI
@@ -22,23 +20,32 @@ namespace LNE.UI
 		{
 			helpMessage = "";
 
-			/*
-			 * Paths
-			 */
+			DisplayPathSettings();
+			DisplayVRSettings();
+			DisplayProstheticVisionSettings();
+		}
 
+		private void DisplayPathSettings()
+		{
 			UnityGUI.Header("Paths", true);
 			Settings.QuitForInvalidPaths = UnityGUI.Toggle("Quit For Invalid Paths", Settings.QuitForInvalidPaths);
 			if (UnityGUI.OnMouseHoverPrevious())
 			{
 				helpMessage = "Application will quit on initialisation if any fields that are using the Path Attribute have invalid paths.";
 			}
+		}
 
+		private void DisplayVRSettings()
+		{
 			UnityGUI.Header("VR", true);
+			DisplayEyeTrackingSettings();
+			DisplayVRInputSettings();
+			DisplayDelaySettings();
+			DisplayViveAppPathSettings();
+		}
 
-			/*
-			 * Eye tracking SDKs
-			 */
-
+		private void DisplayEyeTrackingSettings()
+		{
 			UnityGUI.IndentLevel--;
 			UnityGUI.Label("Eye Tracking SDKs");
 			UnityGUI.IndentLevel++;
@@ -55,21 +62,19 @@ namespace LNE.UI
 			}
 
 			UnityGUI.Space();
+		}
 
-			/*
-			 * VRInput support
-			 */ 
-
+		private void DisplayVRInputSettings()
+		{
 			Settings.VRInputSupport = UnityGUI.Toggle("VRInput Support", Settings.VRInputSupport);
 			if (UnityGUI.OnMouseHoverPrevious())
 			{
 				helpMessage = "Add VRInput support to the Input Manager. Recommended if using the Vive Pro Eye.";
 			}
+		}
 
-			/*
-			 * Delay play
-			 */
-
+		private void DisplayDelaySettings()
+		{
 			var floatGui = new GUIOptions
 			{
 				style = EditorStyles.numberField,
@@ -86,11 +91,10 @@ namespace LNE.UI
 			UnityGUI.Label("seconds");
 
 			UnityGUI.EndHorizontal();
+		}
 
-			/*
-			 * Vive app paths
-			 */
-
+		private void DisplayViveAppPathSettings()
+		{
 			UnityGUI.Space();
 
 			var buttonGui = new GUIOptions
@@ -135,11 +139,10 @@ namespace LNE.UI
 			UnityGUI.Label(Settings.SteamVRPath != "" ? Settings.SteamVRPath : "<not set>", labelGui);
 			UnityGUI.Label(Settings.SRanipalPath != "" ? Settings.SRanipalPath : "<not set>", labelGui);
 			UnityGUI.IndentLevel++;
+		}
 
-			/*
-			 * Prosthetic vision
-			 */
-
+		private void DisplayProstheticVisionSettings()
+		{
 			UnityGUI.Header("Prosthetic Vision", true);
 			Settings.SaveRuntimeChangesAutomatically = UnityGUI.Toggle("Save Runtime Changes", Settings.SaveRuntimeChangesAutomatically);
 			if (UnityGUI.OnMouseHoverPrevious())
