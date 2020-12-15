@@ -1,107 +1,108 @@
 ﻿#pragma warning disable 649
 
-using System;
 using System.Collections;
 using UnityEngine;
-using LNE.ProstheticVision;
-using LNE.ProstheticVision.Fading;
-using LNE.UI.Attributes;
-using LNE.UI;
 
-public class FadeDebugger : MonoBehaviour
+namespace LNE.ProstheticVision.Fading
 {
-	public enum Channel { R = 1, G = 2, B = 4, A = 8 }
+	using LNE.UI.Attributes;
+	using LNE.UI;
 
-	[SerializeField, Space, CustomLabel(label = "Reset")]
-	private EditorButton resetButton;
-
-	[Header("Fade Values")]
-	[SerializeField, CustomLabel(label = "Material")]
-	private Material fadeMaterial;
-
-	[SerializeField]
-	Channel channels;
-
-	[Header("Crosshair")]
-	[SerializeField, CustomLabel(label = "Material")]
-	private Material crosshairMaterial;
-
-	[SerializeField]
-	private Vector2 pixel;
-
-	[SerializeField]
-	private Vector2 pixelOffset;
-
-	private Texture2D readback;
-	private LineGraph graph;
-
-	public Vector2 Pixel
+	public class FadeDebugger : MonoBehaviour
 	{
-		get => pixel + pixelOffset;
-		set => pixel = value;
-	}
+		public enum Channel { R = 1, G = 2, B = 4, A = 8 }
 
-	private EpiretinalImplant Implant => Prosthesis.Instance.Implant as EpiretinalImplant;
+		[SerializeField, Space, CustomLabel(label = "Reset")]
+		private EditorButton resetButton;
 
-	void Start()
-	{
-		resetButton = new EditorButton(() => { Implant.ResetFadingParameters(); });
+		[Header("Fade Values")]
+		[SerializeField, CustomLabel(label = "Material")]
+		private Material fadeMaterial;
 
-		readback = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
-		graph = FindObjectOfType<LineGraph>();
+		[SerializeField]
+		Channel channels;
 
-		StartCoroutine(GetPixel());
-	}
+		[Header("Crosshair")]
+		[SerializeField, CustomLabel(label = "Material")]
+		private Material crosshairMaterial;
 
-	void Update()
-	{
-		fadeMaterial.SetTexture("_SubTex", Implant.FadeRT.Back);
-		fadeMaterial.SetFloat("_R", channels.HasFlag(Channel.R) ? 1 : 0);
-		fadeMaterial.SetFloat("_G", channels.HasFlag(Channel.G) ? 1 : 0);
-		fadeMaterial.SetFloat("_B", channels.HasFlag(Channel.B) ? 1 : 0);
-		fadeMaterial.SetFloat("_A", channels.HasFlag(Channel.A) ? 1 : 0);
+		[SerializeField]
+		private Vector2 pixel;
 
-		if (Input.GetMouseButton(1))
+		[SerializeField]
+		private Vector2 pixelOffset;
+
+		private Texture2D readback;
+		private LineGraph graph;
+
+		public Vector2 Pixel
 		{
-			Pixel = Input.mousePosition;
+			get => pixel + pixelOffset;
+			set => pixel = value;
 		}
 
-		crosshairMaterial.SetVector("_target_pixel", Pixel);
-	}
+		private EpiretinalImplant Implant => Prosthesis.Instance.Implant as EpiretinalImplant;
 
-	IEnumerator GetPixel()
-	{
-		while (Application.isPlaying)
+		void Start()
 		{
-			yield return new WaitForEndOfFrame();
+			resetButton = new EditorButton(() => { Implant.ResetFadingParameters(); });
 
-			if (graph == null)
-				continue;
+			readback = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
+			graph = FindObjectOfType<LineGraph>();
 
-			var activeRT = RenderTexture.active;
-			RenderTexture.active = Implant.FadeRT.Back;
+			StartCoroutine(GetPixel());
+		}
 
-			readback.ReadPixels(new Rect(Pixel.x, Implant.headset.GetHeight() - Pixel.y, 1, 1), 0, 0);
-			readback.Apply();
+		void Update()
+		{
+			fadeMaterial.SetTexture("_SubTex", Implant.FadeRT.Back);
+			fadeMaterial.SetFloat("_R", channels.HasFlag(Channel.R) ? 1 : 0);
+			fadeMaterial.SetFloat("_G", channels.HasFlag(Channel.G) ? 1 : 0);
+			fadeMaterial.SetFloat("_B", channels.HasFlag(Channel.B) ? 1 : 0);
+			fadeMaterial.SetFloat("_A", channels.HasFlag(Channel.A) ? 1 : 0);
 
-			if (channels.HasFlag(Channel.R))
+			if (Input.GetMouseButton(1))
 			{
-				graph.Value = readback.GetPixel(0, 0).r;
-			}
-			else if (channels.HasFlag(Channel.G))
-			{
-				graph.Value = readback.GetPixel(0, 0).g;
-			}
-			else if (channels.HasFlag(Channel.B))
-			{
-				graph.Value = readback.GetPixel(0, 0).b;
-			}
-			else if (channels.HasFlag(Channel.A))
-			{
-				graph.Value = readback.GetPixel(0, 0).a;
+				Pixel = Input.mousePosition;
 			}
 
-			RenderTexture.active = activeRT;
+			crosshairMaterial.SetVector("_target_pixel", Pixel);
+		}
+
+		IEnumerator GetPixel()
+		{
+			while (Application.isPlaying)
+			{
+				yield return new WaitForEndOfFrame();
+
+				if (graph == null)
+					continue;
+
+				var activeRT = RenderTexture.active;
+				RenderTexture.active = Implant.FadeRT.Back;
+
+				readback.ReadPixels(new Rect(Pixel.x, Implant.headset.GetHeight() - Pixel.y, 1, 1), 0, 0);
+				readback.Apply();
+
+				if (channels.HasFlag(Channel.R))
+				{
+					graph.Value = readback.GetPixel(0, 0).r;
+				}
+				else if (channels.HasFlag(Channel.G))
+				{
+					graph.Value = readback.GetPixel(0, 0).g;
+				}
+				else if (channels.HasFlag(Channel.B))
+				{
+					graph.Value = readback.GetPixel(0, 0).b;
+				}
+				else if (channels.HasFlag(Channel.A))
+				{
+					graph.Value = readback.GetPixel(0, 0).a;
+				}
+
+				RenderTexture.active = activeRT;
+			}
 		}
 	}
 }
